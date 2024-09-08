@@ -71,7 +71,14 @@ const PeonSchema = CollectionSchema(
       ],
     )
   },
-  links: {},
+  links: {
+    r'teacher': LinkSchema(
+      id: -3685024959290349685,
+      name: r'teacher',
+      target: r'Teacher',
+      single: true,
+    )
+  },
   embeddedSchemas: {},
   getId: _peonGetId,
   getLinks: _peonGetLinks,
@@ -134,7 +141,7 @@ Peon _peonDeserialize(
   object.contactNo = reader.readStringOrNull(offsets[0]);
   object.email = reader.readStringOrNull(offsets[1]);
   object.fatherName = reader.readStringOrNull(offsets[2]);
-  object.peonId = id;
+  object.id = id;
   object.name = reader.readStringOrNull(offsets[3]);
   return object;
 }
@@ -160,15 +167,16 @@ P _peonDeserializeProp<P>(
 }
 
 Id _peonGetId(Peon object) {
-  return object.peonId ?? Isar.autoIncrement;
+  return object.id ?? Isar.autoIncrement;
 }
 
 List<IsarLinkBase<dynamic>> _peonGetLinks(Peon object) {
-  return [];
+  return [object.teacher];
 }
 
 void _peonAttach(IsarCollection<dynamic> col, Id id, Peon object) {
-  object.peonId = id;
+  object.id = id;
+  object.teacher.attach(col, col.isar.collection<Teacher>(), r'teacher', id);
 }
 
 extension PeonByIndex on IsarCollection<Peon> {
@@ -278,7 +286,7 @@ extension PeonByIndex on IsarCollection<Peon> {
 }
 
 extension PeonQueryWhereSort on QueryBuilder<Peon, Peon, QWhere> {
-  QueryBuilder<Peon, Peon, QAfterWhere> anyPeonId() {
+  QueryBuilder<Peon, Peon, QAfterWhere> anyId() {
     return QueryBuilder.apply(this, (query) {
       return query.addWhereClause(const IdWhereClause.any());
     });
@@ -286,66 +294,66 @@ extension PeonQueryWhereSort on QueryBuilder<Peon, Peon, QWhere> {
 }
 
 extension PeonQueryWhere on QueryBuilder<Peon, Peon, QWhereClause> {
-  QueryBuilder<Peon, Peon, QAfterWhereClause> peonIdEqualTo(Id peonId) {
+  QueryBuilder<Peon, Peon, QAfterWhereClause> idEqualTo(Id id) {
     return QueryBuilder.apply(this, (query) {
       return query.addWhereClause(IdWhereClause.between(
-        lower: peonId,
-        upper: peonId,
+        lower: id,
+        upper: id,
       ));
     });
   }
 
-  QueryBuilder<Peon, Peon, QAfterWhereClause> peonIdNotEqualTo(Id peonId) {
+  QueryBuilder<Peon, Peon, QAfterWhereClause> idNotEqualTo(Id id) {
     return QueryBuilder.apply(this, (query) {
       if (query.whereSort == Sort.asc) {
         return query
             .addWhereClause(
-              IdWhereClause.lessThan(upper: peonId, includeUpper: false),
+              IdWhereClause.lessThan(upper: id, includeUpper: false),
             )
             .addWhereClause(
-              IdWhereClause.greaterThan(lower: peonId, includeLower: false),
+              IdWhereClause.greaterThan(lower: id, includeLower: false),
             );
       } else {
         return query
             .addWhereClause(
-              IdWhereClause.greaterThan(lower: peonId, includeLower: false),
+              IdWhereClause.greaterThan(lower: id, includeLower: false),
             )
             .addWhereClause(
-              IdWhereClause.lessThan(upper: peonId, includeUpper: false),
+              IdWhereClause.lessThan(upper: id, includeUpper: false),
             );
       }
     });
   }
 
-  QueryBuilder<Peon, Peon, QAfterWhereClause> peonIdGreaterThan(Id peonId,
+  QueryBuilder<Peon, Peon, QAfterWhereClause> idGreaterThan(Id id,
       {bool include = false}) {
     return QueryBuilder.apply(this, (query) {
       return query.addWhereClause(
-        IdWhereClause.greaterThan(lower: peonId, includeLower: include),
+        IdWhereClause.greaterThan(lower: id, includeLower: include),
       );
     });
   }
 
-  QueryBuilder<Peon, Peon, QAfterWhereClause> peonIdLessThan(Id peonId,
+  QueryBuilder<Peon, Peon, QAfterWhereClause> idLessThan(Id id,
       {bool include = false}) {
     return QueryBuilder.apply(this, (query) {
       return query.addWhereClause(
-        IdWhereClause.lessThan(upper: peonId, includeUpper: include),
+        IdWhereClause.lessThan(upper: id, includeUpper: include),
       );
     });
   }
 
-  QueryBuilder<Peon, Peon, QAfterWhereClause> peonIdBetween(
-    Id lowerPeonId,
-    Id upperPeonId, {
+  QueryBuilder<Peon, Peon, QAfterWhereClause> idBetween(
+    Id lowerId,
+    Id upperId, {
     bool includeLower = true,
     bool includeUpper = true,
   }) {
     return QueryBuilder.apply(this, (query) {
       return query.addWhereClause(IdWhereClause.between(
-        lower: lowerPeonId,
+        lower: lowerId,
         includeLower: includeLower,
-        upper: upperPeonId,
+        upper: upperId,
         includeUpper: includeUpper,
       ));
     });
@@ -917,7 +925,7 @@ extension PeonQueryFilter on QueryBuilder<Peon, Peon, QFilterCondition> {
     });
   }
 
-  QueryBuilder<Peon, Peon, QAfterFilterCondition> peonIdIsNull() {
+  QueryBuilder<Peon, Peon, QAfterFilterCondition> idIsNull() {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(const FilterCondition.isNull(
         property: r'id',
@@ -925,7 +933,7 @@ extension PeonQueryFilter on QueryBuilder<Peon, Peon, QFilterCondition> {
     });
   }
 
-  QueryBuilder<Peon, Peon, QAfterFilterCondition> peonIdIsNotNull() {
+  QueryBuilder<Peon, Peon, QAfterFilterCondition> idIsNotNull() {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(const FilterCondition.isNotNull(
         property: r'id',
@@ -933,7 +941,7 @@ extension PeonQueryFilter on QueryBuilder<Peon, Peon, QFilterCondition> {
     });
   }
 
-  QueryBuilder<Peon, Peon, QAfterFilterCondition> peonIdEqualTo(Id? value) {
+  QueryBuilder<Peon, Peon, QAfterFilterCondition> idEqualTo(Id? value) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.equalTo(
         property: r'id',
@@ -942,7 +950,7 @@ extension PeonQueryFilter on QueryBuilder<Peon, Peon, QFilterCondition> {
     });
   }
 
-  QueryBuilder<Peon, Peon, QAfterFilterCondition> peonIdGreaterThan(
+  QueryBuilder<Peon, Peon, QAfterFilterCondition> idGreaterThan(
     Id? value, {
     bool include = false,
   }) {
@@ -955,7 +963,7 @@ extension PeonQueryFilter on QueryBuilder<Peon, Peon, QFilterCondition> {
     });
   }
 
-  QueryBuilder<Peon, Peon, QAfterFilterCondition> peonIdLessThan(
+  QueryBuilder<Peon, Peon, QAfterFilterCondition> idLessThan(
     Id? value, {
     bool include = false,
   }) {
@@ -968,7 +976,7 @@ extension PeonQueryFilter on QueryBuilder<Peon, Peon, QFilterCondition> {
     });
   }
 
-  QueryBuilder<Peon, Peon, QAfterFilterCondition> peonIdBetween(
+  QueryBuilder<Peon, Peon, QAfterFilterCondition> idBetween(
     Id? lower,
     Id? upper, {
     bool includeLower = true,
@@ -1132,7 +1140,20 @@ extension PeonQueryFilter on QueryBuilder<Peon, Peon, QFilterCondition> {
 
 extension PeonQueryObject on QueryBuilder<Peon, Peon, QFilterCondition> {}
 
-extension PeonQueryLinks on QueryBuilder<Peon, Peon, QFilterCondition> {}
+extension PeonQueryLinks on QueryBuilder<Peon, Peon, QFilterCondition> {
+  QueryBuilder<Peon, Peon, QAfterFilterCondition> teacher(
+      FilterQuery<Teacher> q) {
+    return QueryBuilder.apply(this, (query) {
+      return query.link(q, r'teacher');
+    });
+  }
+
+  QueryBuilder<Peon, Peon, QAfterFilterCondition> teacherIsNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.linkLength(r'teacher', 0, true, 0, true);
+    });
+  }
+}
 
 extension PeonQuerySortBy on QueryBuilder<Peon, Peon, QSortBy> {
   QueryBuilder<Peon, Peon, QAfterSortBy> sortByContactNo() {
@@ -1221,13 +1242,13 @@ extension PeonQuerySortThenBy on QueryBuilder<Peon, Peon, QSortThenBy> {
     });
   }
 
-  QueryBuilder<Peon, Peon, QAfterSortBy> thenByPeonId() {
+  QueryBuilder<Peon, Peon, QAfterSortBy> thenById() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'id', Sort.asc);
     });
   }
 
-  QueryBuilder<Peon, Peon, QAfterSortBy> thenByPeonIdDesc() {
+  QueryBuilder<Peon, Peon, QAfterSortBy> thenByIdDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'id', Sort.desc);
     });
@@ -1277,7 +1298,7 @@ extension PeonQueryWhereDistinct on QueryBuilder<Peon, Peon, QDistinct> {
 }
 
 extension PeonQueryProperty on QueryBuilder<Peon, Peon, QQueryProperty> {
-  QueryBuilder<Peon, int, QQueryOperations> peonIdProperty() {
+  QueryBuilder<Peon, int, QQueryOperations> idProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'id');
     });
